@@ -60,6 +60,10 @@ class OptionsScope(object):
         tld_must_match (bool): only crawl pages with the same tld as the startpoint (e.g. only `.com`)
         max_depth (obj): the maximum search depth. For example, 2 would be the startpoint and all the pages found on it. Default is None (unlimited).
         request_methods list(str): only crawl these request methods. If empty or ``None`` all request methods will be crawled. Default is all.
+        ignore_similar_requests (bool): use machine learning to ignore similar requests (e.g. with these two urls; `/page/1` and `/page/2`, only `/page/1` will be crawled).
+
+    Note:
+        The `ignore_similar_requests` uses machine learning and needs a pretty large data set before it starts working efficiently.
 
     """
 
@@ -72,6 +76,7 @@ class OptionsScope(object):
         self.tld_must_match = True
         self.max_depth = None
         self.request_methods = []
+        self.ignore_similar_requests = False
 
 class OptionsCallbacks(object):
     """The OptionsCallbacks class contains all the callback methods.

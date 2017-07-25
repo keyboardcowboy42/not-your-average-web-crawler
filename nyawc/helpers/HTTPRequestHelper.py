@@ -82,7 +82,18 @@ class HTTPRequestHelper:
                 return False
 
         if scope.subdomain_must_match:
-            if URLHelper.get_subdomain(queue_item.request.url) != URLHelper.get_subdomain(new_request.url):
+            current_subdomain = URLHelper.get_subdomain(queue_item.request.url)
+            new_subdomain = URLHelper.get_subdomain(new_request.url)
+
+            www_matches = False
+
+            if current_subdomain == "www" and new_subdomain == "":
+                www_matches = True
+
+            if new_subdomain == "www" and current_subdomain == "":
+                www_matches = True
+
+            if not www_matches and current_subdomain != new_subdomain:
                 return False
 
         if scope.hostname_must_match:

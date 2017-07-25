@@ -33,18 +33,7 @@
    </p>
    <h1>Not Your Average Web Crawler</h1>
 
-A very useful web crawler for vulnerability scanning. Not Your Average Web Crawler (N.Y.A.W.C) is a Python application that enables you to crawl web applications for requests instead of URLs. It crawls every GET and POST request on the specified domain and keeps track of the request and response data. It's main purpose is to be used in web application vulnerability scanners.
-
-**Crawls:**
-
--  **Links:** URLs in HTML, XML, etc.
--  **Forms:** GET & POST forms and their request data.
-
-**Future development:**
-
-- Support rate limiting.
-- Support XHR/JS scraping.
-- Add other scrapers.
+Did you ever want to test your payload against all requests of a certain domain? N.Y.A.W.C can help you with that. It crawls all requests (e.g. GET, POST or PUT) on the specified domain and keeps track of the request and response data. During the crawling process, the callbacks enable you to insert your payload at specific places and test if they worked.
 
 Table of contents
 -----------------
@@ -67,10 +56,10 @@ First make sure you're on `Python 2.7/3.3 <https://www.python.org/>`__ or higher
 Crawling flow
 -------------
 
-1. Add the start request to the queue.
-2. Start first request in the queue *(repeat until ``max threads`` option reached)*.
-3. Add all requests found in the response to the queue *(except duplicates)*.
-4. Go to step #2 again to spawn new requests.
+1. You can define your startpoint (a request) and the crawling scope and then start the crawler.
+2. The crawler repeatedly starts the first request in the queue until ``max threads`` is reached.
+3. The crawler adds all requests found in the response to the end of the queue (except duplicates).
+4. The crawler goes back to step #2 to spawn new requests repeatedly until ``max threads`` is reached.
 
 .. image:: https://tijme.github.io/not-your-average-web-crawler/latest/_static/img/flow.svg
    :alt: N.Y.A.W.C crawling flow
@@ -85,7 +74,7 @@ Please refer to the `documentation <https://tijme.github.io/not-your-average-web
 Minimal implementation
 ----------------------
 
-You can use the callbacks in ``example_minimal.py`` to run your own exploit against the requests. If you want an example of automated exploit scanning, please take a look at `Angular CSTI scanner <https://github.com/tijme/angularjs-csti-scanner>`__ (it uses N.Y.A.W.C to scan for the AngularJS sandbox escape vulnerability).
+You can use the callbacks in ``example_minimal.py`` to run your own exploit against the requests. If you want an example of automated exploit scanning, please take a look at `Detective <https://github.com/tijme/detective>`__ (it uses N.Y.A.W.C to scan for information disclosure vulnerabilities).
 
 You can also use the `kitchen sink <https://tijme.github.io/not-your-average-web-crawler/latest/kitchen_sink.html>`__ (which contains all the functionalities from N.Y.A.W.C.) instead of the example below. The code below is a minimal implementation of N.Y.A.W.C.
 

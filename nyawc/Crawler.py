@@ -29,6 +29,7 @@ import threading
 
 from nyawc.Queue import Queue
 from nyawc.QueueItem import QueueItem
+from nyawc.Intelligence import Intelligence
 from nyawc.CrawlerThread import CrawlerThread
 from nyawc.CrawlerActions import CrawlerActions
 from nyawc.helpers.HTTPRequestHelper import HTTPRequestHelper
@@ -44,6 +45,7 @@ class Crawler(object):
         __stopped (bool): If the crawler finished stopping the crawler process.
         __threads (obj): All currently running threads, as queue item hash => :class:`nyawc.CrawlerThread`.
         __lock (obj): The callback lock to prevent race conditions.
+        __intelligence (:class:`nyawc.Intelligence`): The machine learning process manager.
 
     """
 
@@ -64,6 +66,11 @@ class Crawler(object):
         self.__stopped = False
         self.__threads = {}
         self.__lock = threading.Lock()
+
+        if options.scope.ignore_similar_requests:
+            self.__intelligence = Intelligence()
+        else:
+            self.__intelligence = None
 
     def __signal_handler(self, signum, frame):
         """On sigint (e.g. CTRL+C) stop the crawler.
@@ -262,7 +269,7 @@ class Crawler(object):
         for scraped_request in scraped_requests:
             HTTPRequestHelper.patch_with_options(scraped_request, self.__options, queue_item)
 
-            if not HTTPRequestHelper.complies_with_scope(queue_item, scraped_request, self.__options.scope):
+            if not HTTPRequestHelper.complies_with_scope(queue_item, scraped_request, self.__options.scope, self.__intelligence):
                 continue
 
             if self.queue.has_request(scraped_request):

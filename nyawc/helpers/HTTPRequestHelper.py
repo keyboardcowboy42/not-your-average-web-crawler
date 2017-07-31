@@ -54,33 +54,39 @@ class HTTPRequestHelper:
                 request.cookies.set(cookie.name, cookie.value, domain=cookie.domain, path=cookie.path)
 
     @staticmethod
-    def complies_with_scope(queue_item, new_request, scope):
+    def complies_with_scope(queue_item, new_request, scope, intelligence):
         """Check if the new request complies with the crawling scope.
 
         Args:
             queue_item (:class:`nyawc.QueueItem`): The parent queue item of the new request.
             new_request (:class:`nyawc.http.Request`): The request to check.
             scope (:class:`nyawc.Options.OptionsScope`): The scope to check.
+            intelligence (:class:`nyawc.Intelligence`): The machine learning process manager.
 
         Returns:
             bool: True if it complies, False otherwise.
 
         """
 
+        # If old URL is valid
         if not URLHelper.is_parsable(queue_item.request.url):
             return False
 
+        # If new URL is valid
         if not URLHelper.is_parsable(new_request.url):
             return False
 
+        # If request method is in scope
         if scope.request_methods:
             if not queue_item.request.method in scope.request_methods:
                 return False
 
+        # If protocol is in scope
         if scope.protocol_must_match:
             if URLHelper.get_protocol(queue_item.request.url) != URLHelper.get_protocol(new_request.url):
                 return False
 
+        # If subdomain is in scope
         if scope.subdomain_must_match:
             current_subdomain = URLHelper.get_subdomain(queue_item.request.url)
             new_subdomain = URLHelper.get_subdomain(new_request.url)
@@ -96,12 +102,20 @@ class HTTPRequestHelper:
             if not www_matches and current_subdomain != new_subdomain:
                 return False
 
+        # If hostname is in scope
         if scope.hostname_must_match:
             if URLHelper.get_hostname(queue_item.request.url) != URLHelper.get_hostname(new_request.url):
                 return False
 
+        # If TLD is in scope
         if scope.tld_must_match:
             if URLHelper.get_tld(queue_item.request.url) != URLHelper.get_tld(new_request.url):
                 return False
+
+        # If no similar requests have been crawled
+        if scope.ignore_similar_requests:
+            if intelligence.ignore_similar_queue_items(queue_item).should_ignore():
+                return False
+
 
         return True
